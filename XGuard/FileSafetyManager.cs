@@ -14,6 +14,11 @@
             "user-config.json",
         };
 
+        private static readonly List<string> UnlockableFiles = new List<string>
+        {
+            "data.json",
+        };
+
         private static FileSystemWatcher _fileSystemWatcher;
         private static readonly List<FileStream> _lockedFiles = new List<FileStream>();
 
@@ -120,6 +125,11 @@
 
         private static void LockFile(string path)
         {
+            if (UnlockableFiles.Contains(Path.GetFileNameWithoutExtension(path)))
+            {
+                return;
+            }
+
             try
             {
                 var fs = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);

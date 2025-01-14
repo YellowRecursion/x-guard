@@ -27,15 +27,26 @@
                 Environment.Exit(0);
             }
 
+            Logger.Info("--- XGUARD STARTER RUN ---");
+
             _terminationFileWatcher = new FileSystemWatcher(AppDomain.CurrentDomain.BaseDirectory, TERMINATION_FILENAME);
             _terminationFileWatcher.EnableRaisingEvents = true;
             _terminationFileWatcher.Created += TerminationFileCreated;
 
-            _processObserver1 = new ProcessObserver("XGuard", 1);
+            try
+            {
+                PrivilegeHelper.EnablePrivileges();
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e.ToString());
+            }
+
+            _processObserver1 = new ProcessObserver("XGuard", 1, true);
             _processObserver1.Run();
 
-            _processObserver2 = new ProcessObserver("XGuardStarter", 2);
-            _processObserver2.Run();
+            //_processObserver2 = new ProcessObserver("XGuardStarter", 2, false);
+            //_processObserver2.Run();
 
             while (true)
             {

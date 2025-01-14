@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using murrayju.ProcessExtensions;
 
 namespace XGuard
 {
@@ -8,13 +9,15 @@ namespace XGuard
         private string _currentDirectory;
         private string _processPath;
         private int _count;
+        private bool _launchAppInUserSession;
 
-        public ProcessObserver(string processNameWithoutExtencion, int count)
+        public ProcessObserver(string processNameWithoutExtencion, int count, bool launchAppInUserSession)
         {
             _processName = processNameWithoutExtencion;
             _currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
             _processPath = Path.Combine(_currentDirectory, _processName + ".exe");
             _count = count;
+            _launchAppInUserSession = launchAppInUserSession;
         }
 
         public async void Run()
@@ -25,12 +28,30 @@ namespace XGuard
                 {
                     if (Process.GetProcessesByName(_processName).Length < _count)
                     {
-                        StartProcessAsAdmin(_processPath);
+                        Logger.Info("Start: " + _processPath);
+                        if (_launchAppInUserSession)
+                        {
+                            try
+                            {
+                                //ProcessLauncher.LaunchInteractiveProcess(_processPath);
+                                ProcessExtensions.StartProcessAsCurrentUser(_processPath, workDir: AppDomain.CurrentDomain.BaseDirectory);
+                                //UserSessionLauncher.LaunchProcessInUserSession(_processPath);
+                            }
+                            catch (Exception e)
+                            {
+                                Logger.Error(e.GetType() + e.Message);
+                            }
+                            
+                        }
+                        else
+                        {
+                            StartProcessAsAdmin(_processPath);
+                        }
                     }
                 }
                 catch (Exception) { }
 
-                await Task.Delay(50);
+                await Task.Delay(3000);
             }
         }
 

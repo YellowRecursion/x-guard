@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Security.Principal;
 
 namespace XGuard
 {
@@ -6,6 +7,8 @@ namespace XGuard
     {
         public static string AppName;
         public static string AppExePath;
+        public static string StarterAppName;
+        public static string StarterAppExePath;
         public static string CurrentDirectory;
 
         private static NSFWDetector _detector;
@@ -50,6 +53,9 @@ namespace XGuard
             CurrentDirectory = AppDomain.CurrentDomain.BaseDirectory;
             AppExePath = Path.Combine(CurrentDirectory, $"{AppName}.exe");
 
+            StarterAppName = "XGuardStarter";
+            StarterAppExePath = Path.Combine(CurrentDirectory, $"{StarterAppName}.exe");
+
             MainForm = new MainForm();
             OverlayForm = new OverlayForm();
             Logger = new Logger(MainForm.LogsTextBox);
@@ -62,17 +68,31 @@ namespace XGuard
 
             Application.Run(MainForm);
         }
-
+        static bool IsUserAdministrator()
+        {
+            WindowsIdentity identity = WindowsIdentity.GetCurrent();
+            WindowsPrincipal principal = new WindowsPrincipal(identity);
+            return principal.IsInRole(WindowsBuiltInRole.Administrator);
+        }
         private static void Run()
         {
             try
             {
+                if (IsUserAdministrator()) 
+                {
+                    Logger.Info("У программы есть права администратора.");
+                }
+                else
+                {
+                    Logger.Info("У программы нет прав администратора.");
+                }
+
                 if (IsProcessRunning(AppName))
                 {
                     //Logger.Info("XGuard is already running, close new instance");
                     //Environment.Exit(0);
-                    Logger.Info("XGuard is already running, close old instance");
-                    ProcessObserver.StopProcessBesidesThat(AppName);
+                    //Logger.Info("XGuard is already running, close old instance");
+                    //ProcessObserver.StopProcessBesidesThat(AppName);
                     //ProcessObserver.StartProcessAsAdmin(AppExePath);
                     //return;
                 }

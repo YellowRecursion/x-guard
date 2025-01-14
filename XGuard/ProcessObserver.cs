@@ -19,19 +19,19 @@ namespace XGuard
 
         public async void Run()
         {
-            while (_enabled)
-            {
-                try
-                {
-                    if (!IsProcessRunning(_processName))
-                    {
-                        StartProcessAsAdmin(_processPath);
-                    }
-                }
-                catch (Exception) { }
+            //while (_enabled)
+            //{
+            //    try
+            //    {
+            //        if (!IsProcessRunning(_processName))
+            //        {
+            //            StartProcessAsAdmin(_processPath);
+            //        }
+            //    }
+            //    catch (Exception) { }
 
-                await Task.Delay(200);
-            }
+            //    await Task.Delay(200);
+            //}
         }
 
         private static bool IsProcessRunning(string processName)
