@@ -51,7 +51,7 @@ namespace XGuard
                 }
                 catch (Exception) { }
 
-                await Task.Delay(3000);
+                await Task.Delay(100);
             }
         }
 

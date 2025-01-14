@@ -74,10 +74,13 @@ namespace XGuard
             WindowsPrincipal principal = new WindowsPrincipal(identity);
             return principal.IsInRole(WindowsBuiltInRole.Administrator);
         }
-        private static void Run()
+        private static async void Run()
         {
             try
             {
+                Logger.Info("------ XGuard launch ------");
+                Logger.Info($"Current directory: {CurrentDirectory}");
+
                 if (IsUserAdministrator()) 
                 {
                     Logger.Info("У программы есть права администратора.");
@@ -85,9 +88,12 @@ namespace XGuard
                 else
                 {
                     Logger.Info("У программы нет прав администратора.");
+                    await AdminLauncher.LaunchAsAdministratorWithFocus(AppExePath);
+                    Environment.Exit(0);
+                    return;
                 }
 
-                if (IsProcessRunning(AppName))
+                if (IsProcessRunning(AppName)) 
                 {
                     //Logger.Info("XGuard is already running, close new instance");
                     //Environment.Exit(0);
@@ -96,9 +102,6 @@ namespace XGuard
                     //ProcessObserver.StartProcessAsAdmin(AppExePath);
                     //return;
                 }
-
-                Logger.Info("------ XGuard launch ------");
-                Logger.Info($"Current directory: {CurrentDirectory}");
 
                 Data = new ProgramData();
                 UserConfig = new UserConfig();
