@@ -3,10 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35219.272
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XGuard", "XGuard\XGuard.csproj", "{32CA5F50-D131-4FAA-B5CB-2E3B0ADC33B8}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XGuardStarter", "XGuardStarter\XGuardStarter.csproj", "{5C575965-B2DE-4661-8762-D9CED3BFBF3D}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XGuardLibrary", "XGuardLibrary\XGuardLibrary.csproj", "{B0DF8133-251B-4B15-9E5A-206E6DE92AF6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XGuardLockScreen", "XGuardLockScreen\XGuardLockScreen.csproj", "{D24A4BF6-13F0-47C7-B2B9-4E1F0CD30802}"
@@ -15,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XGuardScreenshoter", "XGuar
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XGuardMain", "XGuardMain\XGuardMain.csproj", "{ED455716-F3EB-4B62-8E8B-D749C063A376}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XGuardKeepAlive", "XGuardKeepAlive\XGuardKeepAlive.csproj", "{D254495E-EF9A-4DC9-831B-1027A2ADBB46}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XGuardKeepAlive", "XGuardKeepAlive\XGuardKeepAlive.csproj", "{D254495E-EF9A-4DC9-831B-1027A2ADBB46}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,14 +19,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{32CA5F50-D131-4FAA-B5CB-2E3B0ADC33B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{32CA5F50-D131-4FAA-B5CB-2E3B0ADC33B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{32CA5F50-D131-4FAA-B5CB-2E3B0ADC33B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{32CA5F50-D131-4FAA-B5CB-2E3B0ADC33B8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5C575965-B2DE-4661-8762-D9CED3BFBF3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5C575965-B2DE-4661-8762-D9CED3BFBF3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5C575965-B2DE-4661-8762-D9CED3BFBF3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5C575965-B2DE-4661-8762-D9CED3BFBF3D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B0DF8133-251B-4B15-9E5A-206E6DE92AF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B0DF8133-251B-4B15-9E5A-206E6DE92AF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0DF8133-251B-4B15-9E5A-206E6DE92AF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
