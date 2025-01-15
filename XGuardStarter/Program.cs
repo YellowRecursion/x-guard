@@ -33,14 +33,14 @@
             _terminationFileWatcher.EnableRaisingEvents = true;
             _terminationFileWatcher.Created += TerminationFileCreated;
 
-            try
-            {
-                PrivilegeHelper.EnablePrivileges();
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e.ToString());
-            }
+            //try
+            //{
+            //    PrivilegeHelper.EnablePrivileges();
+            //}
+            //catch (Exception e)
+            //{
+            //    Logger.Error(e.ToString());
+            //}
 
             _processObserver1 = new ProcessObserver("XGuard", 1, true);
             _processObserver1.Run();
