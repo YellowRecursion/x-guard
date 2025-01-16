@@ -9,7 +9,6 @@ namespace XGuard
     {
         public static NsfwDetectionService DetectionService { get; private set; }
 
-        public static UserConfig UserConfig { get; private set; }
         public static ProgramData Data { get; private set; }
 
         static void Main(string[] args)
@@ -70,14 +69,13 @@ namespace XGuard
 
         private static void OnTermination()
         {
-            TaskSchedulerService.RemoveTask(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AppDomain.CurrentDomain.FriendlyName + ".exe"));
+            TaskSchedulerUtilities.RemoveTask(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AppDomain.CurrentDomain.FriendlyName + ".exe"));
             Logger.Info("Terminated");
         }
 
         private static void PrepareConfigs()
         {
             Data = new ProgramData();
-            UserConfig = new UserConfig();
 
             if (Data.IsFileExists())
             {
@@ -86,29 +84,8 @@ namespace XGuard
             }
             else
             {
-                Logger.Info("Load user config");
-
-                UserConfig.Load();
-
-                if (string.IsNullOrWhiteSpace(UserConfig.TerminationToken) ||
-                    string.IsNullOrWhiteSpace(UserConfig.BotToken) ||
-                    UserConfig.ModeratorUserIds.Count == 0)
-                {
-                    Logger.Info($"Before start you must prepare '{UserConfig.Filename}'");
-                    Environment.Exit(0);
-                    return;
-                }
-
-                Data.TerminationTokenHash = HashingUtility.ComputeSHA256Hash(UserConfig.TerminationToken);
-                Data.BotToken = UserConfig.BotToken;
-                Data.ModeratorUserIds = UserConfig.ModeratorUserIds;
-
-                Data.Save();
-            }
-
-            if (File.Exists(UserConfig.FilePath))
-            {
-                File.Delete(UserConfig.FilePath);
+                Logger.Info("Data file is not found");
+                Environment.Exit(0);
             }
         }
 
