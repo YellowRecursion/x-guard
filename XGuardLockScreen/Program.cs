@@ -4,15 +4,12 @@ namespace XGuardLockScreen
 {
     internal static class Program
     {
-        private static LockScreen _lockScreen;
-
+        private static readonly List<LockScreen> _lockScreens = new List<LockScreen>();
         public static ProgramData? Data { get; private set; }
 
         [STAThread]
         static void Main()
         {
-            // To customize application configuration such as set high DPI settings or default font,
-            // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
 
             Data = new ProgramData();
@@ -24,10 +21,36 @@ namespace XGuardLockScreen
 
             TerminationService.Initialize(Data.TerminationTokenHash);
 
-            _lockScreen = new LockScreen();
+            CreateLockScreensForAllMonitors();
             Mainloop();
 
-            Application.Run(_lockScreen);
+            Application.Run();
+        }
+
+        private static void CreateLockScreensForAllMonitors()
+        {
+            foreach (var screen in Screen.AllScreens)
+            {
+                var lockScreen = new LockScreen
+                {
+                    StartPosition = FormStartPosition.Manual,
+                    WindowState = FormWindowState.Maximized,
+                    FormBorderStyle = FormBorderStyle.None,
+                    TopMost = true,
+                    Location = screen.Bounds.Location,
+                    Size = screen.Bounds.Size
+                };
+
+                // Обработка события Closing для предотвращения закрытия окна
+                lockScreen.FormClosing += (sender, e) =>
+                {
+                    e.Cancel = true; // Отменяем закрытие формы
+                    ((Form)sender).Hide(); // Скрываем форму
+                };
+
+                _lockScreens.Add(lockScreen);
+                lockScreen.Show();
+            }
         }
 
         private static async void Mainloop()
@@ -36,8 +59,17 @@ namespace XGuardLockScreen
             {
                 try
                 {
-                    _lockScreen.WindowState = FormWindowState.Maximized;
-                    _lockScreen.Activate();
+                    foreach (var lockScreen in _lockScreens)
+                    {
+                        // Проверяем, если форма была скрыта или закрыта, восстанавливаем ее
+                        if (!lockScreen.Visible)
+                        {
+                            lockScreen.Show();
+                        }
+
+                        lockScreen.WindowState = FormWindowState.Maximized;
+                        lockScreen.Activate();
+                    }
                 }
                 catch (Exception ex)
                 {
