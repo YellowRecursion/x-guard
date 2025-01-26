@@ -57,7 +57,7 @@ namespace XGuardLauncher
 
                         File.WriteAllText(Path.Combine(_appDir, "termination.txt"), token);
 
-                        Thread.Sleep(3000);
+                        Thread.Sleep(6000);
 
                         if (File.Exists(Path.Combine(_appDir, "termination.txt")))
                         {
@@ -67,7 +67,7 @@ namespace XGuardLauncher
                         TaskSchedulerUtilities.RemoveTask(_appName);
 
                         Console.WriteLine("XGuard завершил работу");
-                        Thread.Sleep(1000);
+                        Thread.Sleep(1500);
                         Environment.Exit(0);
                     }
                     else

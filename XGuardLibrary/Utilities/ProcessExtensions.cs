@@ -257,6 +257,13 @@ namespace XGuardLibrary.Utilities
             return activeSessionId;
         }
 
+        public static int GetCountOfProcessesInCurrentSession(string processName)
+        {
+            uint userSessionId = GetCurrentSessionID();
+            var countOfProcesses = Process.GetProcessesByName(processName).Count(p => p.SessionId == userSessionId);
+            return countOfProcesses;
+        }
+
         public static bool StartProcessAsCurrentUser(string appPath, string cmdLine = null, string workDir = null, bool visible = true)
         {
             var hUserToken = nint.Zero;

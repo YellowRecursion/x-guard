@@ -86,43 +86,5 @@ namespace XGuardLibrary
                 await Task.Delay(80);
             }
         }
-
-        static int? GetActiveUserSessionId()
-        {
-            try
-            {
-                // Используем WMI для получения активных интерактивных сеансов
-                using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_LogonSession WHERE LogonType = 2"))
-                {
-                    foreach (ManagementObject session in searcher.Get())
-                    {
-                        var sessionId = session["LogonId"];
-                        if (sessionId != null)
-                        {
-                            // Проверяем, связан ли этот сеанс с активным пользователем
-                            using (var userSearcher = new ManagementObjectSearcher($"ASSOCIATORS OF {{Win32_LogonSession.LogonId={sessionId}}} WHERE AssocClass=Win32_LoggedOnUser"))
-                            {
-                                foreach (ManagementObject user in userSearcher.Get())
-                                {
-                                    string userName = user["Name"]?.ToString();
-                                    string domain = user["Domain"]?.ToString();
-
-                                    if (!string.IsNullOrEmpty(userName))
-                                    {
-                                        Console.WriteLine($"Найден активный пользователь: {domain}\\{userName}, SessionId: {sessionId}");
-                                        return Convert.ToInt32(sessionId);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Ошибка при получении активного пользователя: {ex.Message}");
-            }
-            return null;
-        }
     }
 }

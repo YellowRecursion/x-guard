@@ -17,6 +17,7 @@ namespace XGuard.Services
         private ProcessObserver _screenshoterObserver;
         private YoloPredictor _yoloPredictor;
         private YoloConfiguration _yoloConfiguration;
+        private readonly string _screenshoterPath;
         private int _nsfwCounter;
         private int _detectionRate = MIN_RATE;
         private int _noDetectionsTimer; // in seconds
@@ -53,8 +54,7 @@ namespace XGuard.Services
 
             Logger.Info($"Detection Model {MODEL_FILENAME} loaded");
 
-            _screenshoterObserver = new ProcessObserver("XGuardScreenshoter", 1, true);
-            _screenshoterObserver.Run();
+            _screenshoterPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "XGuardScreenshoter.exe");
         }
 
         ~NsfwDetectionService()
@@ -131,26 +131,19 @@ namespace XGuard.Services
                 {
                     if (_disableTimer <= 0 && _noDetectionsTimer >= 0)
                     {
-                        var existingFiles = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "screenshot-*.png");
-
-                        for (int i = 0; i < existingFiles.Length; i++)
-                        {
-                            File.Delete(existingFiles[i]);
-                        }
+                        ProcessExtensions.StartProcessAsCurrentUser(_screenshoterPath, workDir: AppDomain.CurrentDomain.BaseDirectory);
 
                         do
                         {
                             await Task.Delay(100);
                             elapsedTime += 100;
-                            existingFiles = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "screenshot-*.png");
                         }
-                        while (existingFiles.Length == 0);
-
-                        await Task.Delay(200);
-                        elapsedTime += 200;
+                        while (ProcessExtensions.GetCountOfProcessesInCurrentSession("XGuardScreenshoter") > 0);
 
                         Stopwatch stopwatch = new Stopwatch();
                         stopwatch.Start();
+
+                        var existingFiles = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "screenshot-*.png");
 
                         bool hasNsfw = false;
 

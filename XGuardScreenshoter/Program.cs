@@ -15,43 +15,26 @@ namespace XGuardScreenshoter
         {
             ApplicationConfiguration.Initialize();
 
-            Data = new ProgramData();
-
-            if (Data.IsFileExists())
+            try
             {
-                Data.Load();
+                // Удаляем старые скриншоты
+                var existingFiles = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "screenshot-*.png");
+                for (int i = 0; i < existingFiles.Length; i++)
+                {
+                    File.Delete(existingFiles[i]);
+                }
+
+                // Делаем скриншоты всех экранов
+                var screens = Screen.AllScreens;
+                for (int i = 0; i < screens.Length; i++)
+                {
+                    string screenshotFilename = Path.Combine(_basePath, $"screenshot-{i}.png");
+                    CaptureScreen(screens[i], screenshotFilename);
+                }
             }
-
-            TerminationService.Initialize(Data.TerminationTokenHash);
-
-            CaptureScreenshots();
-        }
-
-        public static void CaptureScreenshots()
-        {
-            while (true)
+            catch (Exception ex)
             {
-                Thread.Sleep(200);
-
-                try
-                {
-                    var existingFiles = Directory.GetFiles(_basePath, "screenshot-*.png");
-
-                    if (existingFiles.Length == 0)
-                    {
-                        // Делаем скриншоты всех экранов
-                        var screens = Screen.AllScreens;
-                        for (int i = 0; i < screens.Length; i++)
-                        {
-                            string screenshotFilename = Path.Combine(_basePath, $"screenshot-{i}.png");
-                            CaptureScreen(screens[i], screenshotFilename);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error($"ScreenshotHelper Error: {ex.GetType()}: {ex.Message}");
-                }
+                Logger.Error($"ScreenshotHelper Error: {ex.GetType()}: {ex.Message}");
             }
         }
 
