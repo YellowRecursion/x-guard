@@ -7,32 +7,34 @@ namespace XGuard.Services
 {
     public class NsfwDetectionService
     {
+        private class Detection
+        {
+            private DateTime _timestamp;
+
+            public Detection(DateTime timestamp)
+            {
+                _timestamp = timestamp;
+            }
+
+            public DateTime Timestamp => _timestamp;
+            public TimeSpan Lifetime => DateTime.Now - _timestamp + DETECTION_LIFETIME;
+        }
+        
         public const string MODEL_FILENAME = "adult-m-gen1.onnx";
         public const string SCREENSHOT_FILENAME = "screenshot_{0}.png";
-        public const int MIN_RATE = 3000; // ms
-        public const int DETECTION_SCORE = 1;
-        public const int NO_DETECTION_SCORE = -1;
-        public const int MAX_DETECTION_SCORE = DETECTION_SCORE * 2;
+        public const int MIN_RATE = 4000; // ms
+        public static readonly TimeSpan DETECTION_LIFETIME = new TimeSpan(0, 0, 0, 30, 0);
+        public const int MAX_DETECTION_COUNT = 2;
+        public const int LOCK_TIME = 30;
 
         private ProcessObserver _screenshoterObserver;
         private YoloPredictor _yoloPredictor;
         private YoloConfiguration _yoloConfiguration;
         private readonly string _screenshoterPath;
-        private int _nsfwCounter;
         private int _detectionRate = MIN_RATE;
         private int _noDetectionsTimer; // in seconds
         private int _disableTimer; // in seconds
-
-        public int NsfwCounter
-        {
-            get => _nsfwCounter;
-            set
-            {
-                _nsfwCounter = Math.Clamp(value, 0, MAX_DETECTION_SCORE);
-            }
-        }
-
-        public bool MaxNsfwScoreReached => NsfwCounter == MAX_DETECTION_SCORE;
+        private List<Detection> _detections = new List<Detection>(MAX_DETECTION_COUNT);    
 
         public int NoDetectionsTimer { get => _noDetectionsTimer; set => _noDetectionsTimer = value; }
         public int DisableTimer { get => _disableTimer; set => _disableTimer = value; }
@@ -68,7 +70,12 @@ namespace XGuard.Services
             {
                 try
                 {
-                    if (NsfwCounter == 0)
+                    _detections.RemoveAll(detection =>
+                    {
+                        return DateTime.Now > detection.Timestamp + DETECTION_LIFETIME;
+                    });
+
+                    if (_detections.Count == 0)
                     {
                         _noDetectionsTimer++;
                     }
@@ -78,10 +85,10 @@ namespace XGuard.Services
                         _detectionRate = MIN_RATE;
                     }
 
-                    if (MaxNsfwScoreReached)
+                    if (_detections.Count >= MAX_DETECTION_COUNT)
                     {
-                        _noDetectionsTimer = -30;
-                        NsfwCounter = 0;
+                        _noDetectionsTimer = -LOCK_TIME;
+                        _detections.Clear();
                         Locked = true;
                         OnLock?.Invoke();
                     }
@@ -99,17 +106,13 @@ namespace XGuard.Services
 
                     _detectionRate = MIN_RATE;
 
-                    if (_noDetectionsTimer > 30)
+                    if (_noDetectionsTimer > 40)
                     {
                         _detectionRate = MIN_RATE * 2;
                     }
                     if (_noDetectionsTimer > 120)
                     {
                         _detectionRate = MIN_RATE * 4;
-                    }
-                    if (_noDetectionsTimer > 300)
-                    {
-                        _detectionRate = MIN_RATE * 6;
                     }
                 }
                 catch (Exception ex)
@@ -162,11 +165,9 @@ namespace XGuard.Services
 
                         elapsedTime += (int)stopwatch.ElapsedMilliseconds;
 
-                        var score = hasNsfw ? DETECTION_SCORE : NO_DETECTION_SCORE;
-                        NsfwCounter += score;
-
                         if (hasNsfw)
                         {
+                            _detections.Add(new Detection(DateTime.Now));
                             _noDetectionsTimer = 0;
                             _detectionRate = MIN_RATE;
                             SoundPlayer.Play(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "warn.wav"));
