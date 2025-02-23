@@ -43,6 +43,58 @@ namespace XGuard.Services
             _fileSystemWatcher.Changed += FileChanged;
             _fileSystemWatcher.Deleted += FileDeleted;
             _fileSystemWatcher.Renamed += FileRenamed;
+
+            Loop();
+        }
+
+        private static async void Loop()
+        {
+            while (true)
+            {
+                await Task.Delay(1000);
+
+                _fileSystemWatcher.EnableRaisingEvents = false;
+
+                try
+                {
+                    // Get a list of all files and directories from backup
+                    var backupFiles = Directory.GetFiles(BackupDirectory, "*", SearchOption.AllDirectories)
+                                               .Select(f => Path.GetRelativePath(BackupDirectory, f));
+
+                    var backupDirs = Directory.GetDirectories(BackupDirectory, "*", SearchOption.AllDirectories)
+                                              .Select(d => Path.GetRelativePath(BackupDirectory, d));
+
+                    // Check for missing files
+                    foreach (var relativePath in backupFiles)
+                    {
+                        var originalPath = Path.Combine(WorkDirectory, relativePath);
+
+                        if (!File.Exists(originalPath) && !ShouldIgnore(originalPath))
+                        {
+                            Logger.Warn($"File missing: {originalPath}. Restoring from backup...");
+                            RestoreFileOrDir(originalPath);
+                        }
+                    }
+
+                    // Check for missing directories
+                    foreach (var relativePath in backupDirs)
+                    {
+                        var originalPath = Path.Combine(WorkDirectory, relativePath);
+
+                        if (!Directory.Exists(originalPath) && !ShouldIgnore(originalPath))
+                        {
+                            Logger.Warn($"Directory missing: {originalPath}. Restoring from backup...");
+                            RestoreFileOrDir(originalPath);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"Error in file monitoring loop: {ex.Message}");
+                }
+
+                _fileSystemWatcher.EnableRaisingEvents = true;
+            }
         }
 
         private static void MakeBackup()
