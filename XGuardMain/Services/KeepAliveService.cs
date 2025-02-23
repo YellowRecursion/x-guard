@@ -8,7 +8,7 @@ namespace XGuard.Services
 
         static KeepAliveService()
         {
-            _processObserver = new ProcessObserver("XGuardKeepAlive", 2, false);
+            _processObserver = new ProcessObserver("XGuardKeepAlive", 3, false);
            
         }
 
