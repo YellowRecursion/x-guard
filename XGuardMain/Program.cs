@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using XGuard.Services;
+using XGuard.Utilities;
 using XGuardLibrary;
 using XGuardLibrary.Utilities;
 
@@ -65,6 +66,7 @@ namespace XGuard
         private static void OnLockOrUnlock()
         {
             LockScreenService.ShowLockScreen = DetectionService.Locked;
+            SystemVolumeUtilities.Mute = DetectionService.Locked;
         }
 
         private static void OnTermination()
