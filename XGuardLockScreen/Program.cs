@@ -29,8 +29,10 @@ namespace XGuardLockScreen
 
         private static void CreateLockScreensForAllMonitors()
         {
-            foreach (var screen in Screen.AllScreens)
+            for (int i = 0; i < Screen.AllScreens.Length; i++)
             {
+                Screen screen = Screen.AllScreens[i];
+
                 var lockScreen = new LockScreen
                 {
                     StartPosition = FormStartPosition.Manual,
@@ -38,7 +40,8 @@ namespace XGuardLockScreen
                     FormBorderStyle = FormBorderStyle.None,
                     TopMost = true,
                     Location = screen.Bounds.Location,
-                    Size = screen.Bounds.Size
+                    Size = screen.Bounds.Size,
+                    Prime = i == 0,
                 };
 
                 // ќбработка событи€ Closing дл€ предотвращени€ закрыти€ окна

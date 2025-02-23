@@ -32,15 +32,18 @@
             // 
             // LockScreen
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(12F, 30F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(47, 54, 64);
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(1200, 675);
             FormBorderStyle = FormBorderStyle.None;
+            Margin = new Padding(4);
             Name = "LockScreen";
             Text = "LockScreen";
             TopMost = true;
             WindowState = FormWindowState.Maximized;
+            FormClosed += LockScreen_FormClosed;
+            Load += LockScreen_Load;
             ResumeLayout(false);
         }
 
