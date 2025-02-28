@@ -45,6 +45,8 @@ namespace XGuard
 
                 KeepAliveService.Run();
 
+                CloseWindowsWithBadwordsService.Run();
+
                 DetectionService = new NsfwDetectionService(); 
                 DetectionService.DetectionLoop();
                 DetectionService.LogicLoop();

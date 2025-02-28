@@ -153,6 +153,7 @@ namespace XGuard.Services
                         for (int i = 0; i < existingFiles.Length; i++)
                         {
                             using var image = SixLabors.ImageSharp.Image.Load(existingFiles[i]);
+                            
                             var result = await _yoloPredictor.DetectAsync(image, _yoloConfiguration);
 
                             if (result.Count > 0)
