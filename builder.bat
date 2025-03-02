@@ -17,9 +17,8 @@ mkdir "%BUILD_DIR%"
 rem Список проектов для копирования (относительные пути)
 set PROJECTS[0]=XGuardKeepAlive\bin\%CONFIG%\net8.0
 set PROJECTS[1]=XGuardLauncher\bin\%CONFIG%\net8.0
-set PROJECTS[2]=XGuardLockScreen\bin\%CONFIG%\net8.0-windows
+set PROJECTS[2]=XGuardUser\bin\%CONFIG%\net8.0-windows
 set PROJECTS[3]=XGuardMain\bin\%CONFIG%\net8.0
-set PROJECTS[4]=XGuardScreenshoter\bin\%CONFIG%\net8.0-windows
 
 rem Копирование файлов из каждого проекта
 for /L %%i in (0,1,4) do (

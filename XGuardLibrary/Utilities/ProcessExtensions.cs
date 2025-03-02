@@ -368,5 +368,19 @@ namespace XGuardLibrary.Utilities
                 processes[i].Kill();
             }
         }
+
+        public static bool IsLowestStartTimeProcess()
+        {
+            string processName = Process.GetCurrentProcess().ProcessName;
+
+            // Получаем все процессы с тем же именем
+            var processes = Process.GetProcessesByName(processName);
+
+            // Находим процесс с минимальным StartTime
+            var processWithMinPid = processes.OrderBy(p => p.StartTime).FirstOrDefault();
+
+            // Если текущий процесс совпадает с процессом с минимальным PID, вернуть true
+            return processWithMinPid != null && processWithMinPid.Id == Process.GetCurrentProcess().Id;
+        }
     }
 }

@@ -5,15 +5,13 @@ VisualStudioVersion = 17.11.35219.272
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XGuardLibrary", "XGuardLibrary\XGuardLibrary.csproj", "{B0DF8133-251B-4B15-9E5A-206E6DE92AF6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XGuardLockScreen", "XGuardLockScreen\XGuardLockScreen.csproj", "{D24A4BF6-13F0-47C7-B2B9-4E1F0CD30802}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XGuardScreenshoter", "XGuardScreenshoter\XGuardScreenshoter.csproj", "{00D6438A-77A0-4EF7-A8BF-5B22B1292307}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XGuardMain", "XGuardMain\XGuardMain.csproj", "{ED455716-F3EB-4B62-8E8B-D749C063A376}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XGuardKeepAlive", "XGuardKeepAlive\XGuardKeepAlive.csproj", "{D254495E-EF9A-4DC9-831B-1027A2ADBB46}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XGuardLauncher", "XGuardLauncher\XGuardLauncher.csproj", "{ADB77F89-B686-4689-A877-9C4C4A6BF44E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XGuardLauncher", "XGuardLauncher\XGuardLauncher.csproj", "{ADB77F89-B686-4689-A877-9C4C4A6BF44E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XGuardUser", "XGuardUser\XGuardUser.csproj", "{1EA59326-37E6-48EF-8E3A-7E555FBB482C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,14 +23,6 @@ Global
 		{B0DF8133-251B-4B15-9E5A-206E6DE92AF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0DF8133-251B-4B15-9E5A-206E6DE92AF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B0DF8133-251B-4B15-9E5A-206E6DE92AF6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D24A4BF6-13F0-47C7-B2B9-4E1F0CD30802}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D24A4BF6-13F0-47C7-B2B9-4E1F0CD30802}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D24A4BF6-13F0-47C7-B2B9-4E1F0CD30802}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D24A4BF6-13F0-47C7-B2B9-4E1F0CD30802}.Release|Any CPU.Build.0 = Release|Any CPU
-		{00D6438A-77A0-4EF7-A8BF-5B22B1292307}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{00D6438A-77A0-4EF7-A8BF-5B22B1292307}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{00D6438A-77A0-4EF7-A8BF-5B22B1292307}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{00D6438A-77A0-4EF7-A8BF-5B22B1292307}.Release|Any CPU.Build.0 = Release|Any CPU
 		{ED455716-F3EB-4B62-8E8B-D749C063A376}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{ED455716-F3EB-4B62-8E8B-D749C063A376}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ED455716-F3EB-4B62-8E8B-D749C063A376}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -45,6 +35,10 @@ Global
 		{ADB77F89-B686-4689-A877-9C4C4A6BF44E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ADB77F89-B686-4689-A877-9C4C4A6BF44E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ADB77F89-B686-4689-A877-9C4C4A6BF44E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1EA59326-37E6-48EF-8E3A-7E555FBB482C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EA59326-37E6-48EF-8E3A-7E555FBB482C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EA59326-37E6-48EF-8E3A-7E555FBB482C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EA59326-37E6-48EF-8E3A-7E555FBB482C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

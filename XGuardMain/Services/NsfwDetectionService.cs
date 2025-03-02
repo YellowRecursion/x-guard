@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
 using Compunet.YoloSharp;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Png;
 using XGuardLibrary;
 using XGuardLibrary.Utilities;
 
@@ -21,16 +23,13 @@ namespace XGuard.Services
         }
         
         public const string MODEL_FILENAME = "adult-m-gen1.onnx";
-        public const string SCREENSHOT_FILENAME = "screenshot_{0}.png";
-        public const int MIN_RATE = 4000; // ms
+        public const int MIN_RATE = 5000; // ms
         public static readonly TimeSpan DETECTION_LIFETIME = new TimeSpan(0, 0, 0, 30, 0);
         public const int MAX_DETECTION_COUNT = 2;
         public const int LOCK_TIME = 30;
 
-        private ProcessObserver _screenshoterObserver;
         private YoloPredictor _yoloPredictor;
         private YoloConfiguration _yoloConfiguration;
-        private readonly string _screenshoterPath;
         private int _detectionRate = MIN_RATE;
         private int _noDetectionsTimer; // in seconds
         private int _disableTimer; // in seconds
@@ -44,19 +43,18 @@ namespace XGuard.Services
 
         public event Action OnLock;
         public event Action OnUnlock;
+        public event Action OnTimer;
 
         public NsfwDetectionService()
         {
             _yoloConfiguration = new YoloConfiguration()
             {
-                Confidence = 0.6f,
+                Confidence = 0.75f,
             };
 
             _yoloPredictor = new YoloPredictor(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, MODEL_FILENAME));
 
             Logger.Info($"Detection Model {MODEL_FILENAME} loaded");
-
-            _screenshoterPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "XGuardScreenshoter.exe");
         }
 
         ~NsfwDetectionService()
@@ -78,16 +76,19 @@ namespace XGuard.Services
                     if (_detections.Count == 0)
                     {
                         _noDetectionsTimer++;
+                        OnTimer?.Invoke();
                     }
                     else
                     {
                         _noDetectionsTimer = 0;
+                        OnTimer?.Invoke();
                         _detectionRate = MIN_RATE;
                     }
 
                     if (_detections.Count >= MAX_DETECTION_COUNT)
                     {
                         _noDetectionsTimer = -LOCK_TIME;
+                        OnTimer?.Invoke();
                         _detections.Clear();
                         Locked = true;
                         OnLock?.Invoke();
@@ -134,31 +135,35 @@ namespace XGuard.Services
                 {
                     if (_disableTimer <= 0 && _noDetectionsTimer >= 0)
                     {
-                        ProcessExtensions.StartProcessAsCurrentUser(_screenshoterPath, workDir: AppDomain.CurrentDomain.BaseDirectory);
-
-                        do
-                        {
-                            await Task.Delay(100);
-                            elapsedTime += 100;
-                        }
-                        while (ProcessExtensions.GetCountOfProcessesInCurrentSession("XGuardScreenshoter") > 0);
-
                         Stopwatch stopwatch = new Stopwatch();
                         stopwatch.Start();
 
-                        var existingFiles = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "screenshot-*.png");
-
                         bool hasNsfw = false;
+                        var images = await XGuardUser.Instance.TakeScreenshots();
+                        float maxConfidence = 0f;
 
-                        for (int i = 0; i < existingFiles.Length; i++)
+                        for (int i = 0; i < images.Length; i++)
                         {
-                            using var image = SixLabors.ImageSharp.Image.Load(existingFiles[i]);
-                            
-                            var result = await _yoloPredictor.DetectAsync(image, _yoloConfiguration);
+                            var result = await _yoloPredictor.DetectAsync(images[i], _yoloConfiguration);
 
                             if (result.Count > 0)
                             {
                                 hasNsfw = true;
+
+                                var confidence = result.Max(d => d.Confidence);
+                                if (confidence > maxConfidence) maxConfidence = confidence;
+
+                                // Save image
+                                string uniqueName = DateTime.Now.ToString("yyyyMMdd_HHmmss") + $"_{i}";
+                                if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "nsfw-images")))
+                                {
+                                    Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "nsfw-images"));
+                                }
+                                var imgPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"nsfw-images/image_{uniqueName}.png");
+                                images[i].SaveAsPng(imgPath);
+
+                                // Send image via telegram
+                                BotService.SendNsfsNotification(imgPath);
                             }
                         }
 
@@ -170,11 +175,12 @@ namespace XGuard.Services
                         {
                             _detections.Add(new Detection(DateTime.Now));
                             _noDetectionsTimer = 0;
+                            OnTimer?.Invoke();
                             _detectionRate = MIN_RATE;
                             SoundPlayer.Play(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "warn.wav"));
                         }
 
-                        Logger.Info($"Detection Result: {(hasNsfw ? "NSFW Detected" : "No Detections")} ({stopwatch.ElapsedMilliseconds} ms.)");
+                        Logger.Info($"Detection Result: {(hasNsfw ? $"NSFW Detected with {MathF.Round(maxConfidence * 100f)}% confidence" : "No Detections")} ({stopwatch.ElapsedMilliseconds} ms.)");
                     }
                 }
                 catch (Exception ex)

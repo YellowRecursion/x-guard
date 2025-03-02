@@ -94,7 +94,7 @@ namespace XGuard
 
                             if (message.Text.StartsWith("/pause") && await IsModerator(client, chat, user))
                             {
-                                var timer = int.MaxValue;
+                                var timer = 43200;
 
                                 try
                                 {
@@ -160,11 +160,11 @@ namespace XGuard
         }
 
 
-        public static async Task SendNsfsNotification(string screenshotPath)
+        public static async void SendNsfsNotification(string screenshotPath)
         {
             await Task.Delay(1000);
 
-            var chatIds = new List<long>(Program.Data.ChatIds);
+            var chatIds = new List<long>(Program.Data.ModeratorUserIds);
 
             for (int i = 0; i < 2; i++)
             {
@@ -172,16 +172,19 @@ namespace XGuard
                 {
                     if (!_inited) throw new Exception("Bot is not inited");
 
-                    Logger.Info($"Send NSFS notification to users (try {i + 1})");
+                    Logger.Info($"Send NSFW notification to users (try {i + 1})");
 
-                    Telegram.Bot.Types.Message firstMessage = null;
+                    Telegram.Bot.Types.Message? firstMessage = null;
 
                     using (Stream stream = System.IO.File.OpenRead(screenshotPath))
                     {
                         foreach (var chatId in chatIds)
                         {
                             var isModer = Program.Data.ModeratorUserIds.Contains(chatId);
-                            var caption = isModer ? "Обнаружен NSFS контент. Посмотрите на отправленный скриншот и примите решение на разблокировку" : "Обнаружен NSFS контент.";
+
+                            if (!isModer) continue;
+
+                            var caption = "Обнаружен NSFW контент.";
 
                             if (firstMessage == null)
                             {
@@ -189,10 +192,10 @@ namespace XGuard
                             }
                             else
                             {
-                                 await _botClient.SendPhotoAsync(chatId, photo: InputFile.FromFileId(firstMessage.Photo.First().FileId), hasSpoiler: true, caption: caption);
+                                 await _botClient.SendPhotoAsync(chatId, photo: InputFile.FromFileId(firstMessage.Photo!.First().FileId), hasSpoiler: true, caption: caption);
                             }
 
-                            Logger.Info($"NSFS notification sent to chat {chatId}");
+                            Logger.Info($"NSFW notification sent to chat {chatId}");
                         }
                     }
 
@@ -200,7 +203,7 @@ namespace XGuard
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error("Error on send nsfs telegram message: " + ex.Message);
+                    Logger.Error("Error on send NSFW picture: " + ex.Message);
                     await Task.Delay(3000);
                 }
             }

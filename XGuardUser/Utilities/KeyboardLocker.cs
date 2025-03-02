@@ -1,7 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
+using XGuardLibrary;
 
-namespace XGuardLockScreen.Utilities
+namespace XGuardUser.Utilities
 {
     public class KeyboardLocker : IDisposable
     {
@@ -13,6 +14,7 @@ namespace XGuardLockScreen.Utilities
         {
             _proc = HookCallback;
             _hookID = SetHook(_proc);
+            Logger.Info("Lock Keyboard");
         }
 
         private IntPtr SetHook(LowLevelKeyboardProc proc)
@@ -20,8 +22,14 @@ namespace XGuardLockScreen.Utilities
             using (var curProcess = Process.GetCurrentProcess())
             using (var curModule = curProcess.MainModule)
             {
-                return SetWindowsHookEx(WH_KEYBOARD_LL, proc,
-                    GetModuleHandle(curModule.ModuleName), 0);
+                IntPtr hook = SetWindowsHookEx(WH_KEYBOARD_LL, proc, GetModuleHandle(curModule.ModuleName), 0);
+
+                if (hook == IntPtr.Zero)
+                {
+                    Logger.Error("SetWindowsHookEx failed: " + Marshal.GetLastWin32Error());
+                }
+
+                return hook;
             }
         }
 
@@ -37,6 +45,7 @@ namespace XGuardLockScreen.Utilities
         public void Dispose()
         {
             UnhookWindowsHookEx(_hookID);
+            Logger.Info("Unlock Keyboard");
         }
 
         // Импорты и делегаты

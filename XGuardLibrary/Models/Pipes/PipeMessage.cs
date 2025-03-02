@@ -13,8 +13,13 @@
             Id = id;
         }
 
-        public string Id { get; private set; }
+        public string Id { get; set; }
         public string Name { get; set; }
-        public object Data { get; set; }
+        public string? Data { get; set; }
+
+        public override string ToString()
+        {
+            return $"PipeMessage '{Name}' [ID:{Id}]";
+        }
     }
 }

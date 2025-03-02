@@ -1,4 +1,4 @@
-﻿namespace XGuardLockScreen
+﻿namespace XGuardUser
 {
     partial class LockScreen
     {
@@ -28,25 +28,38 @@
         /// </summary>
         private void InitializeComponent()
         {
+            TimerLabel = new Label();
             SuspendLayout();
+            // 
+            // TimerLabel
+            // 
+            TimerLabel.Dock = DockStyle.Fill;
+            TimerLabel.Font = new Font("Consolas", 72F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            TimerLabel.ForeColor = Color.FromArgb(113, 128, 147);
+            TimerLabel.Location = new Point(0, 0);
+            TimerLabel.Name = "TimerLabel";
+            TimerLabel.Size = new Size(800, 450);
+            TimerLabel.TabIndex = 0;
+            TimerLabel.Text = "30";
+            TimerLabel.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // LockScreen
             // 
-            AutoScaleDimensions = new SizeF(12F, 30F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(47, 54, 64);
-            ClientSize = new Size(1200, 675);
+            ClientSize = new Size(800, 450);
+            Controls.Add(TimerLabel);
             FormBorderStyle = FormBorderStyle.None;
-            Margin = new Padding(4);
             Name = "LockScreen";
             Text = "LockScreen";
             TopMost = true;
             WindowState = FormWindowState.Maximized;
-            FormClosed += LockScreen_FormClosed;
-            Load += LockScreen_Load;
             ResumeLayout(false);
         }
 
         #endregion
+
+        public Label TimerLabel;
     }
 }

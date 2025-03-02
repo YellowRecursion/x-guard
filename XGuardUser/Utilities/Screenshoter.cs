@@ -1,50 +1,42 @@
-using System.Drawing.Imaging;
+п»їusing System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using XGuardLibrary;
+using XGuardLibrary.Utilities;
 
-namespace XGuardScreenshoter
+namespace XGuardUser.Utilities
 {
-    internal static class Program
+    internal static class Screenshoter
     {
-        private static string _basePath = AppDomain.CurrentDomain.BaseDirectory;
-
-        public static ProgramData? Data { get; private set; }
-
-        [STAThread]
-        static void Main()
+        public static byte[][] TakeScreenshotsAsByteArray()
         {
-            ApplicationConfiguration.Initialize();
+            var screens = Screen.AllScreens;
 
-            try
+            byte[][] result = new byte[screens.Length][];
+
+            for (int i = 0; i < screens.Length; i++)
             {
-                // Удаляем старые скриншоты
-                var existingFiles = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "screenshot-*.png");
-                for (int i = 0; i < existingFiles.Length; i++)
+                var bitmap = CaptureScreen(screens[i]);
+                try
                 {
-                    File.Delete(existingFiles[i]);
+                    result[i] = bitmap.ToArray(ImageFormat.Png);
                 }
-
-                // Делаем скриншоты всех экранов
-                var screens = Screen.AllScreens;
-                for (int i = 0; i < screens.Length; i++)
+                catch (Exception e)
                 {
-                    string screenshotFilename = Path.Combine(_basePath, $"screenshot-{i}.png");
-                    CaptureScreen(screens[i], screenshotFilename);
+                    Logger.Error($"TakeScreenshotsAsByteArray(): {e}");
+                }
+                finally
+                {
+                    bitmap.Dispose();
                 }
             }
-            catch (Exception ex)
-            {
-                Logger.Error($"ScreenshotHelper Error: {ex.GetType()}: {ex.Message}");
-            }
+
+            return result;
         }
 
-        public static void CaptureScreen(Screen screen, string filePath)
+        public static Bitmap CaptureScreen(Screen screen)
         {
             if (screen == null)
                 throw new ArgumentNullException(nameof(screen), "Screen cannot be null.");
-
-            if (string.IsNullOrWhiteSpace(filePath))
-                throw new ArgumentException("File path cannot be null or empty.", nameof(filePath));
 
             try
             {
@@ -59,15 +51,13 @@ namespace XGuardScreenshoter
                     Height = (int)(screen.Bounds.Height * scaleFactor),
                 };
 
-                using (Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height))
+                Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height);
+                using (Graphics graphics = Graphics.FromImage(bitmap))
                 {
-                    using (Graphics graphics = Graphics.FromImage(bitmap))
-                    {
-                        graphics.CopyFromScreen(bounds.X, bounds.Y, 0, 0, bounds.Size);
-                    }
-
-                    bitmap.Save(filePath, ImageFormat.Png);
+                    graphics.CopyFromScreen(bounds.X, bounds.Y, 0, 0, bounds.Size);
                 }
+
+                return bitmap;
             }
             catch (Exception ex)
             {

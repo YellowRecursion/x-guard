@@ -8,6 +8,8 @@ namespace XGuard
 {
     public class Program
     {
+        private static XGuardUser _xGuardUser;
+
         public static NsfwDetectionService DetectionService { get; private set; }
 
         public static ProgramData Data { get; private set; }
@@ -27,7 +29,7 @@ namespace XGuard
             {
                 Logger.Info("------ XGuard running ------");
 
-                if (!IsLowestStartTimeProcess())
+                if (!ProcessExtensions.IsLowestStartTimeProcess())
                 {
                     Logger.Warn("Another process with a lower start time is running. Exiting current process.");
                     Environment.Exit(0);
@@ -45,13 +47,19 @@ namespace XGuard
 
                 KeepAliveService.Run();
 
-                CloseWindowsWithBadwordsService.Run();
+                _xGuardUser = new XGuardUser();
+                _xGuardUser.Run();
+                AppDomain.CurrentDomain.ProcessExit += async (sender, e) =>
+                {
+                    await _xGuardUser.DisposeAsync();
+                };
 
                 DetectionService = new NsfwDetectionService(); 
                 DetectionService.DetectionLoop();
                 DetectionService.LogicLoop();
                 DetectionService.OnLock += OnLockOrUnlock;
                 DetectionService.OnUnlock += OnLockOrUnlock;
+                DetectionService.OnTimer += OnLockTimerChanged;
 
                 BotService.Run();
 
@@ -65,9 +73,16 @@ namespace XGuard
             }
         }
 
-        private static void OnLockOrUnlock()
+        private static async void OnLockTimerChanged()
         {
-            LockScreenService.ShowLockScreen = DetectionService.Locked;
+            XGuardUser.Instance.GlobalState.LockScreenTimer = -DetectionService.NoDetectionsTimer;
+            await XGuardUser.Instance.SyncState();
+        }
+
+        private static async void OnLockOrUnlock()
+        {
+            XGuardUser.Instance.GlobalState.LockScreenTimer = -DetectionService.NoDetectionsTimer;
+            await XGuardUser.Instance.SyncState();
             SystemVolumeUtilities.Mute = DetectionService.Locked;
         }
 
@@ -91,20 +106,6 @@ namespace XGuard
                 Logger.Info("Data file is not found");
                 Environment.Exit(0);
             }
-        }
-
-        private static bool IsLowestStartTimeProcess()
-        {
-            string processName = Process.GetCurrentProcess().ProcessName;
-
-            // Получаем все процессы с тем же именем
-            var processes = Process.GetProcessesByName(processName);
-
-            // Находим процесс с минимальным StartTime
-            var processWithMinPid = processes.OrderBy(p => p.StartTime).FirstOrDefault();
-
-            // Если текущий процесс совпадает с процессом с минимальным PID, вернуть true
-            return processWithMinPid != null && processWithMinPid.Id == Process.GetCurrentProcess().Id;
         }
     }
 }

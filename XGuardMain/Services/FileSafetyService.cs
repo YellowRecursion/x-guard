@@ -11,10 +11,7 @@ namespace XGuard.Services
             BackupDirectoryName,
             TerminationService.TERMINATION_FILENAME,
             "logs",
-            "screenshot-0.png",
-            "screenshot-1.png",
-            "screenshot-2.png",
-            "screenshot-3.png",
+            "nsfw-images",
             "user-config.json",
         };
 
